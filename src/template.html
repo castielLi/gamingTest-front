@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}电竞天赋测试{% endblock %}</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/template.css">
+    {% block additional_css %}{% endblock %}
+</head>
+<body>
+    <!-- 全局导航栏 -->
+    <nav class="nav">
+        <div class="nav-container">
+            <!-- Logo区域 -->
+            <a href="/" class="nav-logo">
+                <span class="logo-text">E-Sports Talent</span>
+            </a>
+
+            <!-- 主导航菜单 -->
+            <div class="nav-menu">
+                <a href="/" class="nav-link">首页</a>
+                <a href="/mainTest.html" class="nav-link">能力测试</a>
+                <a href="/pricing.html" class="nav-link">会员方案</a>
+                <a href="#" class="nav-link">关于我们</a>
+            </div>
+
+            <!-- 用户操作区 -->
+            <div class="nav-actions">
+                <div class="theme-toggle">
+                    <button class="theme-button" id="themeToggle">
+                        <svg class="theme-icon light" width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M12 3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm7.071 7.071a1 1 0 0 1 0 1.414l-.707.707a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 0 1 1.414 0zm-14.142 0a1 1 0 0 1 1.414 0l.707.707A1 1 0 1 1 5.636 12.2l-.707-.707a1 1 0 0 1 0-1.414zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-8 4a1 1 0 0 1 1 1 7 7 0 1 0 14 0 1 1 0 1 1 2 0 9 9 0 1 1-18 0 1 1 0 0 1 1-1z"/>
+                        </svg>
+                        <svg class="theme-icon dark" width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 3z"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="views/login/index.html" class="user-avatar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 10C12.21 10 14 8.21 14 6C14 3.79 12.21 2 10 2C7.79 2 6 3.79 6 6C6 8.21 7.79 10 10 10ZM10 12C7.33 12 2 13.34 2 16V18H18V16C18 13.34 12.67 12 10 12Z" fill="currentColor"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 全局页脚 -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>关于我们</h3>
+                    <p>专业的电竞天赋测试与分析平台</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <a href="/pricing.html">会员方案</a>
+                    <a href="/mainTest.html">开始测试</a>
+                    <a href="#">帮助中心</a>
+                </div>
+                <div class="footer-section">
+                    <h3>联系方式</h3>
+                    <p>邮箱：support@esports-talent.com</p>
+                    <p>电话：400-888-8888</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 E-Sports Talent. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 全局加载动画 -->
+    <div class="global-loading" id="globalLoading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- 全局消息提示 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 基础脚本 -->
+    <script src="assets/js/template.js"></script>
+    {% block additional_scripts %}{% endblock %}
+</body>
+</html> 
