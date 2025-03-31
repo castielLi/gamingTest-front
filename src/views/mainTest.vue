@@ -36,10 +36,10 @@
             </div>
           </div>
           <div class="game-actions">
-            <router-link :to="game.route" class="start-button">
+            <button class="start-button" @click="navigateToGame(game.route)">
               开始测试
               <span class="button-glow"></span>
-            </router-link>
+            </button>
             <button class="history-button" @click="showHistory(game.id)">
               历史记录
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -71,7 +71,7 @@ export default {
           { label: '最佳记录', value: '0.185s' },
           { label: '测试次数', value: '12' }
         ],
-        route: '/games/shootgame'
+        route: '/games/reactiontest/index.html'
       },
       {
         id: 'tracking',
@@ -85,7 +85,7 @@ export default {
           { label: '最高分数', value: '89%' },
           { label: '测试次数', value: '8' }
         ],
-        route: '/games/trackingtest'
+        route: '/games/trackingtest/index.html'
       },
       {
         id: 'shooting',
@@ -98,7 +98,7 @@ export default {
           { label: '命中率', value: '92%' },
           { label: '测试次数', value: '15' }
         ],
-        route: '/games/shootgame'
+        route: '/games/shootgame/index.html'
       },
       {
         id: 'memory',
@@ -144,13 +144,17 @@ export default {
       }
     ]);
 
+    const navigateToGame = (route) => {
+      window.location.href = route;
+    };
+
     const showHistory = (gameId) => {
       console.log(`显示 ${gameId} 的历史记录`);
-      // 这里可以实现显示历史记录的逻辑，比如打开一个弹窗
     };
 
     return {
       games,
+      navigateToGame,
       showHistory
     };
   }
@@ -158,24 +162,78 @@ export default {
 </script>
 
 <style scoped>
+/* 全局风格变量 - Leonardo.ai 风格 */
+:root {
+  /* Leonardo.ai 精确匹配的配色系统 */
+  --primary-bg: #070A19; /* 深色背景色 */
+  --secondary-bg: #0C1128; /* 次级背景色 */
+  --tertiary-bg: #111A40; /* 三级背景色 */
+  
+  --accent-blue: #2C5AFF; /* 蓝色强调色 */
+  --accent-blue-light: #37B9F1; /* 浅蓝色强调色 */
+  --accent-purple: #7A2BF6; /* 紫色强调色 */
+  --accent-pink: #DA21C2; /* 粉色强调色 */
+  
+  --primary-gradient: linear-gradient(90deg, #2C5AFF, #7A2BF6); /* 主要渐变 */
+  --secondary-gradient: linear-gradient(90deg, #37B9F1, #DA21C2); /* 次要渐变 */
+  --glow-effect: 0 0 20px rgba(124, 58, 237, 0.5); /* 发光效果 */
+  
+  --text-color: #FFFFFF; /* 主文本色 */
+  --text-muted: rgba(255, 255, 255, 0.6); /* 次要文本色 */
+  --border-light: rgba(255, 255, 255, 0.08); /* 浅色边框 */
+  --glass-bg: rgba(10, 14, 33, 0.75); /* 磨砂玻璃背景 */
+  --nav-height: 70px; /* 导航栏高度 */
+}
+
+/* 整体页面样式 */
+.main-test-page {
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+  overflow-x: hidden;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='1' fill='%232C5AFF' fill-opacity='0.05'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom, var(--primary-bg), var(--secondary-bg));
+}
+
+/* 全局背景效果 */
+.main-test-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 10% 10%, rgba(44, 90, 255, 0.08), transparent 30%),
+    radial-gradient(circle at 90% 90%, rgba(122, 43, 246, 0.08), transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(218, 33, 194, 0.05), transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
 /* 导航样式 */
 .nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background-color: rgba(18, 18, 24, 0.8);
+  height: var(--nav-height);
+  background-color: rgba(7, 10, 25, 0.85);
   backdrop-filter: blur(10px);
   z-index: 100;
-  padding: 15px 0;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
 }
 
 .nav-container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   justify-content: flex-end;
-  padding: 0 20px;
+  padding: 0 30px;
 }
 
 .user-avatar {
@@ -185,38 +243,87 @@ export default {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  transition: background-color 0.3s;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-color);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-avatar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.user-avatar:hover::before {
+  opacity: 0.2;
 }
 
 .user-avatar:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: var(--glow-effect);
+  transform: translateY(-2px);
+}
+
+.user-avatar svg {
+  position: relative;
+  z-index: 1;
 }
 
 /* 测试页面标题样式 */
 .test-header {
   text-align: center;
-  padding: 120px 20px 60px;
-  background: linear-gradient(180deg, #121218 0%, #1a1a24 100%);
-  color: white;
+  padding: calc(var(--nav-height) + 50px) 20px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.test-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center top, rgba(44, 90, 255, 0.1), transparent 70%);
+  z-index: -1;
 }
 
 .test-title {
-  font-size: 2.5rem;
-  margin-bottom: 16px;
-  background: linear-gradient(90deg, #f0f0f0, #ffffff);
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+  position: relative;
+  display: inline-block;
+}
+
+.test-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: var(--primary-gradient);
+  border-radius: 3px;
 }
 
 .test-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  color: var(--text-muted);
   max-width: 600px;
-  margin: 0 auto;
+  margin: 20px auto 0;
 }
 
 /* 游戏测试卡片网格样式 */
@@ -224,27 +331,42 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 30px;
-  padding: 30px 20px 60px;
+  padding: 30px 30px 60px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .game-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  border-radius: 12px;
+  background: rgba(17, 26, 64, 0.4);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s, box-shadow 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: transform 0.4s, box-shadow 0.4s;
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(44, 90, 255, 0.1), transparent 70%);
+  z-index: 0;
 }
 
 .game-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
 .game-content {
   padding: 30px;
+  position: relative;
+  z-index: 1;
 }
 
 .game-icon {
@@ -254,31 +376,56 @@ export default {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2a2a36, #1a1a24);
+  background: linear-gradient(135deg, var(--tertiary-bg), rgba(10, 14, 33, 0.9));
   margin-bottom: 20px;
-  color: #738adb;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  color: var(--accent-blue);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-icon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(44, 90, 255, 0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.game-card:hover .game-icon::after {
+  opacity: 1;
 }
 
 .game-title {
-  font-size: 1.5rem;
-  margin: 0 0 10px;
-  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 15px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  position: relative;
+  display: inline-block;
 }
 
 .game-description {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   margin-bottom: 25px;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  line-height: 1.6;
+  font-size: 16px;
 }
 
 .game-stats {
   display: flex;
   margin-bottom: 30px;
   padding: 15px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  background: rgba(10, 14, 33, 0.5);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
 }
 
 .stat-item {
@@ -286,18 +433,29 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+}
+
+.stat-item:first-child::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  right: 0;
+  height: 80%;
+  width: 1px;
+  background: var(--border-light);
 }
 
 .stat-label {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 5px;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
 }
 
 .stat-value {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #738adb;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-blue-light);
 }
 
 .game-actions {
@@ -310,38 +468,42 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, #5567c9, #738adb);
+  background: var(--primary-gradient);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 30px;
   padding: 12px 24px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 16px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 5px 15px rgba(44, 90, 255, 0.3);
 }
 
 .start-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(85, 103, 201, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(44, 90, 255, 0.4);
 }
 
 .button-glow {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: translateX(-100%);
 }
 
 .start-button:hover .button-glow {
-  opacity: 1;
+  animation: buttonShimmer 1.5s infinite;
+}
+
+@keyframes buttonShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .history-button {
@@ -349,44 +511,89 @@ export default {
   align-items: center;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: all 0.3s;
+  padding: 8px 12px;
+  border-radius: 20px;
 }
 
 .history-button:hover {
-  color: white;
+  color: var(--text-color);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .history-button svg {
   margin-left: 5px;
   transition: transform 0.3s;
+  stroke: var(--accent-blue-light);
 }
 
 .history-button:hover svg {
   transform: translateX(3px);
 }
 
-/* 整体页面样式 */
-.main-test-page {
-  min-height: 100vh;
-  background-color: #121218;
-  color: white;
+/* 响应式调整 */
+@media (max-width: 992px) {
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    padding: 20px 20px 50px;
+  }
 }
 
-/* 响应式调整 */
 @media (max-width: 768px) {
   .games-grid {
     grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
   }
   
   .test-title {
-    font-size: 2rem;
+    font-size: 36px;
   }
   
   .test-subtitle {
-    font-size: 1rem;
+    font-size: 18px;
+  }
+  
+  .test-header {
+    padding-top: calc(var(--nav-height) + 30px);
+    padding-bottom: 40px;
+  }
+  
+  .game-content {
+    padding: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .test-title {
+    font-size: 30px;
+  }
+  
+  .game-title {
+    font-size: 22px;
+  }
+  
+  .game-stats {
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 18px;
+  }
+  
+  .game-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .start-button, .history-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style> 
