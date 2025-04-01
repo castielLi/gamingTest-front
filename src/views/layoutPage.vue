@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <!-- 全局导航栏 -->
-    <nav class="nav" :class="{ 'scrolled': isScrolled }">
+    <!-- 全局导航栏 - 仅在非登录页面显示 -->
+    <nav class="nav" :class="{ 'scrolled': isScrolled }" v-if="!isLoginPage">
       <div class="nav-container">
         <!-- Logo区域 -->
         <router-link to="/" class="nav-logo">
@@ -12,7 +12,7 @@
         <!-- 主导航菜单 -->
         <div class="nav-menu">
           <router-link to="/" class="nav-link">首页</router-link>
-          <router-link to="/mainTest" class="nav-link">能力测试</router-link>
+          <router-link to="/features" class="nav-link">功能介绍</router-link>
           <router-link to="/pricing" class="nav-link">会员方案</router-link>
         </div>
 
@@ -36,19 +36,19 @@
       <!-- 移动菜单 -->
       <div class="mobile-menu" :class="{ 'is-open': isMobileMenuOpen }">
         <router-link to="/" class="mobile-nav-link">首页</router-link>
-        <router-link to="/mainTest" class="mobile-nav-link">能力测试</router-link>
+        <router-link to="/features" class="mobile-nav-link">功能介绍</router-link>
         <router-link to="/pricing" class="mobile-nav-link">会员方案</router-link>
         <router-link to="/about" class="mobile-nav-link">关于我们</router-link>
       </div>
     </nav>
 
-    <!-- 主要内容区域 -->
-    <main class="main-content">
+    <!-- 主要内容区域 - 给登录页增加特殊样式 -->
+    <main class="main-content" :class="{ 'login-page-content': isLoginPage }">
       <slot></slot>
     </main>
 
-    <!-- 全局页脚 -->
-    <footer class="footer">
+    <!-- 全局页脚 - 仅在非登录页面显示 -->
+    <footer class="footer" v-if="!isLoginPage">
       <div class="footer-container">
         <div class="footer-bottom">
           <p>&copy; {{ currentYear }} E-Sports Talent. All rights reserved.</p>
@@ -77,6 +77,12 @@ export default {
       isDarkMode: false,
       isMobileMenuOpen: false,
       isScrolled: false
+    }
+  },
+  computed: {
+    // 判断当前是否为登录页面
+    isLoginPage() {
+      return this.$route.path === '/login';
     }
   },
   methods: {
@@ -114,6 +120,15 @@ export default {
     },
     hideLoading() {
       this.isLoading = false;
+    }
+  },
+  watch: {
+    // 监听路由变化，在路由变化时关闭移动菜单
+    '$route'() {
+      if (this.isMobileMenuOpen) {
+        this.isMobileMenuOpen = false;
+        document.body.style.overflow = '';
+      }
     }
   },
   mounted() {
@@ -969,5 +984,11 @@ button {
   transform: translateY(-5px);
   box-shadow: var(--glass-shadow);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 给登录页内容添加特殊样式 */
+.login-page-content {
+  min-height: 100vh; /* 确保登录页面占满全屏 */
+  padding: 0 !important; /* 移除所有内边距 */
 }
 </style> 
