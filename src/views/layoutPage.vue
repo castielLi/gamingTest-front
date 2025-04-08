@@ -14,11 +14,35 @@
           <router-link to="/" class="nav-link">首页</router-link>
           <router-link to="/features" class="nav-link">功能介绍</router-link>
           <router-link to="/pricing" class="nav-link">会员方案</router-link>
+          <!-- 只有登录后才显示测评中心 -->
+          <router-link v-if="isLoggedIn" to="/maintest" class="nav-link">
+            <span class="nav-link-content">
+              测评中心
+              <span class="nav-link-badge"></span>
+            </span>
+          </router-link>
         </div>
 
         <!-- 用户操作区 -->
         <div class="nav-actions">
-          <router-link to="/login" class="user-avatar">
+          <!-- 已登录显示用户头像和退出按钮 -->
+          <div v-if="isLoggedIn" class="user-profile-menu">
+            <div class="user-avatar logged-in">
+              <img v-if="userInfo && userInfo.avatar" :src="userInfo.avatar" alt="Avatar">
+              <span v-else>{{ userInitial }}</span>
+            </div>
+            <button class="logout-button" @click="handleLogout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              退出登录
+            </button>
+          </div>
+          
+          <!-- 未登录显示登录按钮 -->
+          <router-link v-else to="/login" class="user-avatar">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M10 10C12.21 10 14 8.21 14 6C14 3.79 12.21 2 10 2C7.79 2 6 3.79 6 6C6 8.21 7.79 10 10 10ZM10 12C7.33 12 2 13.34 2 16V18H18V16C18 13.34 12.67 12 10 12Z" fill="currentColor"/>
             </svg>
@@ -38,7 +62,19 @@
         <router-link to="/" class="mobile-nav-link">首页</router-link>
         <router-link to="/features" class="mobile-nav-link">功能介绍</router-link>
         <router-link to="/pricing" class="mobile-nav-link">会员方案</router-link>
-        <router-link to="/about" class="mobile-nav-link">关于我们</router-link>
+        <!-- 只有登录后才显示测评中心 -->
+        <router-link v-if="isLoggedIn" to="/maintest" class="mobile-nav-link">
+          测评中心
+          <span class="mobile-nav-badge"></span>
+        </router-link>
+        <template v-if="isLoggedIn">
+          <div class="mobile-divider"></div>
+          <button class="mobile-nav-link logout" @click="handleLogout">退出登录</button>
+        </template>
+        <template v-else>
+          <div class="mobile-divider"></div>
+          <router-link to="/login" class="mobile-nav-link">登录</router-link>
+        </template>
       </div>
     </nav>
 
@@ -76,14 +112,28 @@ export default {
       isLoading: false,
       isDarkMode: false,
       isMobileMenuOpen: false,
-      isScrolled: false
+      isScrolled: false,
+      showUserMenu: false,
+      userInfo: null,
+      isLoggedIn: false
     }
   },
   computed: {
     // 判断当前是否为登录页面
     isLoginPage() {
       return this.$route.path === '/login';
+    },
+    // 获取用户首字母作为头像显示
+    userInitial() {
+      if (this.userInfo && this.userInfo.name) {
+        return this.userInfo.name.charAt(0).toUpperCase();
+      }
+      return 'U';
     }
+  },
+  created() {
+    // 组件创建时立即检查登录状态
+    this.checkLoginStatus();
   },
   methods: {
     toggleTheme() {
@@ -97,6 +147,45 @@ export default {
     },
     handleScroll() {
       this.isScrolled = window.scrollY > 20;
+    },
+    handleLogout() {
+      localStorage.removeItem('esUserInfo');
+      localStorage.removeItem('esLoggedIn');
+      
+      this.isLoggedIn = false;
+      this.userInfo = null;
+      
+      this.showToast('已成功退出登录', 'success');
+      
+      const protectedRoutes = ['/maintest', '/account'];
+      if (protectedRoutes.includes(this.$route.path)) {
+        this.$router.push('/');
+      }
+    },
+    checkLoginStatus() {
+      console.log('检查登录状态'); // 调试日志
+      const isLoggedIn = localStorage.getItem('esLoggedIn') === 'true';
+      
+      if (isLoggedIn) {
+        try {
+          const userInfoStr = localStorage.getItem('esUserInfo');
+          if (userInfoStr) {
+            this.userInfo = JSON.parse(userInfoStr);
+            this.isLoggedIn = true;
+            console.log('用户已登录:', this.userInfo); // 调试日志
+          } else {
+            console.log('未找到用户信息'); // 调试日志
+            this.handleLogout();
+          }
+        } catch (error) {
+          console.error('解析用户信息出错:', error);
+          this.handleLogout();
+        }
+      } else {
+        console.log('用户未登录'); // 调试日志
+        this.isLoggedIn = false;
+        this.userInfo = null;
+      }
     },
     showToast(message, type = 'info') {
       const toast = document.createElement('div');
@@ -120,36 +209,42 @@ export default {
     },
     hideLoading() {
       this.isLoading = false;
+    },
+    showUserMenuOnHover() {
+      if (this.isLoggedIn) {
+        this.showUserMenu = true;
+      }
+    },
+    hideUserMenuOnLeave() {
+      this.showUserMenu = false;
     }
   },
   watch: {
-    // 监听路由变化，在路由变化时关闭移动菜单
+    // 监听路由变化时检查登录状态
     '$route'() {
-      if (this.isMobileMenuOpen) {
-        this.isMobileMenuOpen = false;
-        document.body.style.overflow = '';
-      }
+      this.checkLoginStatus();
     }
   },
   mounted() {
-    // 初始化主题
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    this.isDarkMode = savedDarkMode;
-    document.documentElement.classList.toggle('dark-theme', this.isDarkMode);
+    // 初始化时检查登录状态
+    this.checkLoginStatus();
     
     // 监听滚动事件
     window.addEventListener('scroll', this.handleScroll);
-    this.handleScroll(); // 初始检查
+    this.handleScroll();
     
     // 暴露全局方法
     window.$app = {
       showToast: this.showToast,
       showLoading: this.showLoading,
-      hideLoading: this.hideLoading
+      hideLoading: this.hideLoading,
+      updateLoginStatus: () => {
+        console.log('调用全局更新登录状态'); // 调试日志
+        this.checkLoginStatus();
+      }
     };
   },
   beforeUnmount() {
-    // 移除事件监听和全局方法
     window.removeEventListener('scroll', this.handleScroll);
     delete window.$app;
   }
@@ -345,7 +440,7 @@ button {
 /* 导航链接样式强化 - 加粗和高亮效果 */
 .nav-menu {
   display: flex;
-  gap: 40px;
+  gap: 32px;
 }
 
 .nav-link {
@@ -439,7 +534,7 @@ button {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 /* 主题切换按钮样式 */
@@ -907,6 +1002,21 @@ button {
   .main-content {
     padding-top: 0; /* 确保移动端也没有顶部内边距 */
   }
+  
+  .logout-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .user-avatar.logged-in {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .nav-link-badge {
+    position: static;
+    margin-left: 6px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -990,5 +1100,116 @@ button {
 .login-page-content {
   min-height: 100vh; /* 确保登录页面占满全屏 */
   padding: 0 !important; /* 移除所有内边距 */
+}
+
+/* 添加用户菜单样式 */
+.user-profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar.logged-in {
+  background: var(--primary-gradient);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 退出按钮新样式 */
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 61, 113, 0.2);
+  background: transparent;
+  color: #FF3D71;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button svg {
+  color: #FF3D71;
+  transition: transform 0.3s ease;
+}
+
+.logout-button:hover {
+  background: rgba(255, 61, 113, 0.1);
+  border-color: rgba(255, 61, 113, 0.4);
+  transform: translateY(-1px);
+}
+
+.logout-button:hover svg {
+  transform: translateX(2px);
+}
+
+/* 移动端导航菜单新增样式 */
+.mobile-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 10px 20px;
+}
+
+.mobile-nav-link.logout {
+  color: #FF3D71;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: center;
+  font-family: inherit;
+  font-size: 1.3rem;
+  padding: 15px 0;
+}
+
+/* 导航链接内容布局 */
+.nav-link-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 测评中心的特殊标记 */
+.nav-link-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+/* 移动端导航标记 */
+.mobile-nav-badge {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* 移动端导航链接样式调整 */
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 </style> 

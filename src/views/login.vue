@@ -71,24 +71,6 @@
           刷新二维码
         </button>
       </div>
-
-      <div class="login-options">
-        <span class="other-methods">其他登录方式</span>
-        <div class="options-list">
-          <button class="option-btn phone">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M17 2H7C5.9 2 5 2.9 5 4V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V4C19 2.9 18.1 2 17 2ZM15 21H9V20H15V21ZM17 18H7V6H17V18ZM17 4H7V4.67H17V4Z" fill="currentColor"/>
-            </svg>
-            手机号登录
-          </button>
-          <button class="option-btn password">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM9 6C9 4.34 10.34 3 12 3C13.66 3 15 4.34 15 6V8H9V6ZM18 20H6V10H18V20ZM12 17C13.1 17 14 16.1 14 15C14 13.9 13.1 13 12 13C10.9 13 10 13.9 10 15C10 16.1 10.9 17 12 17Z" fill="currentColor"/>
-            </svg>
-            密码登录
-          </button>
-        </div>
-      </div>
       
       <div class="login-footer">
         <a href="/" class="back-to-home" @click.prevent="goToHome">返回首页</a>
@@ -108,6 +90,13 @@ export default {
     }
   },
   mounted() {
+    // 检查用户是否已登录，如果已登录则跳转到测试页面
+    const isLoggedIn = localStorage.getItem('esLoggedIn') === 'true';
+    if (isLoggedIn) {
+      this.$router.push('/maintest');
+      return;
+    }
+    
     // 模拟二维码刷新周期
     this.refreshQR();
   },
@@ -139,12 +128,38 @@ export default {
         this.loginTimer = setTimeout(() => {
           this.qrStatus = '登录成功，正在跳转...';
           
-          // 登录成功后跳转
-          setTimeout(() => {
-            this.$router.push('/');
-          }, 1000);
+          // 保存用户信息并更新全局状态
+          this.saveUserInfo();
         }, 2000);
       }, 3000);
+    },
+    saveUserInfo() {
+      // 模拟用户信息
+      const userInfo = {
+        id: 'user123',
+        name: '张三',
+        email: 'zhangsan@example.com',
+        avatar: '',
+        membership: {
+          level: 'pro',
+          expiryDate: '2023-12-31'
+        }
+      };
+      
+      // 先保存用户信息
+      localStorage.setItem('esUserInfo', JSON.stringify(userInfo));
+      localStorage.setItem('esLoggedIn', 'true');
+      
+      // 确保全局状态更新
+      if (window.$app && window.$app.updateLoginStatus) {
+        window.$app.updateLoginStatus();
+        console.log('更新登录状态'); // 调试日志
+      }
+      
+      // 延迟跳转，确保状态更新完成
+      setTimeout(() => {
+        this.$router.push('/maintest');
+      }, 300);
     },
     goToHome() {
       this.$router.push('/');

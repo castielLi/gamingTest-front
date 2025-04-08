@@ -106,34 +106,13 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { basicFeatures, proFeatures, teamFeatures } from '@/config/membershipConfig'
 
 export default {
   name: 'PricingPage',
   setup() {
     const router = useRouter()
     const yearlyBilling = ref(false)
-    
-    // 各版本特性列表
-    const basicFeatures = [
-      '基础能力测试',
-      '基础数据分析',
-      '每月5次测试机会'
-    ]
-    
-    const proFeatures = [
-      '全部测试项目',
-      '专业数据分析',
-      '无限次测试机会',
-      '个性化提升建议',
-      '优先客服支持'
-    ]
-    
-    const teamFeatures = [
-      '专业版全部功能',
-      '最多10人账号',
-      '团队数据分析',
-      '专属客户经理'
-    ]
     
     // 选择套餐方法
     const selectPlan = (plan) => {
