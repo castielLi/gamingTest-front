@@ -3,13 +3,14 @@
     <!-- 第一部分：漫画轮播 -->
     <section class="comic-slider" >
       <div class="slider-container">
-        <div class="slider-track">
-          <div class="slide" v-for="(slide, index) in comicSlides" :key="index">
+        <div class="slider-track" :style="{ transform: `translateX(-${currentSlideIndex * 100}%)` }">
+          <div class="slide" v-for="(slide, index) in comicSlides" :key="index"
+               :class="{ 'current': index === currentSlideIndex }">
             <div class="slide-content">
-              <!-- <img :src="slide.image" :alt="slide.alt"> -->
-              <div class="slide-text">
+              <img :src="slide.image" :alt="slide.alt" class="slide-image">
+              <!-- <div class="slide-text">
                 <p class="emotion-text">{{ slide.text }}</p>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -488,10 +489,26 @@ export default {
     
     // 漫画轮播图数据
     const comicSlides = ref([
-      { text: '又是一个通宵...', image: '../assets/images/comic1.jpg', alt: '沉迷游戏' },
-      { text: '为什么不能理解我？', image: '../assets/images/comic2.jpg', alt: '与父母争执' },
-      { text: '我真的没有出路了吗...', image: '../assets/images/comic3.jpg', alt: '成绩下滑' },
-      { text: '未来在哪里...', image: '../assets/images/comic4.jpg', alt: '迷茫未来' }
+      {
+        image: require('@/assets/img/11.jpg'),
+        // alt: '图片描述1',
+        // text: '显示文字1'
+      },
+      {
+        image: require('@/assets/img/12.jpg'),
+        // alt: '图片描述2',
+        // text: '显示文字2'
+      },
+      {
+        image: require('@/assets/img/13.jpg'),
+        // alt: '图片描述3',
+        // text: '显示文字3'
+      },
+      {
+        image: require('@/assets/img/14.jpg'),
+        // alt: '图片描述4',
+        // text: '显示文字4'
+      }
     ]);
     
     const currentSlideIndex = ref(0);
@@ -521,28 +538,27 @@ export default {
     // 轮播图控制函数
     const goToSlide = (index) => {
       if (isAnimating.value) return;
-      
       isAnimating.value = true;
       currentSlideIndex.value = index;
       
-      // 更新轮播图显示
-      updateSliderPosition();
-      
-      // 动画结束后解除锁定
       setTimeout(() => {
         isAnimating.value = false;
-      }, 600);
+      }, 3000);
     };
     
     const nextSlide = () => {
-      const newIndex = (currentSlideIndex.value + 1) % comicSlides.value.length;
-      goToSlide(newIndex);
+      goToSlide((currentSlideIndex.value + 1) % comicSlides.value.length);
     };
     
     const prevSlide = () => {
-      const newIndex = (currentSlideIndex.value - 1 + comicSlides.value.length) % comicSlides.value.length;
-      goToSlide(newIndex);
+      goToSlide((currentSlideIndex.value - 1 + comicSlides.value.length) % comicSlides.value.length);
     };
+    
+    // 初始化自动轮播
+    onMounted(() => {
+      const autoSlideInterval = setInterval(nextSlide, 5000);
+      intervals.value.push(autoSlideInterval);
+    });
     
     // 更新轮播图位置
     const updateSliderPosition = () => {
@@ -893,16 +909,121 @@ export default {
 .comic-slider {
   width: 100%;
   margin: 0 auto;
-  padding: 0 0 50px; /* 仅保留底部内边距 */
+  padding: 0 0 50px;
   position: relative;
   overflow: hidden;
-  margin-top: 0; /* 移除顶部外边距 */
 }
 
-/* 删除移动设备的特殊间距调整，保持一致性 */
+.slider-container {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top: var(--nav-height);
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--tertiary-bg);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.slider-track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.5s ease-in-out;
+  /* 移除固定高度，让它自适应内容 */
+  height: auto;
+}
+
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+  position: relative;
+}
+
+.slide-content {
+  position: relative;
+  width: 100%;
+  /* 使用 padding-top 来保持 16:9 的比例 */
+  padding-top: 56.25%; /* 16:9 = 9/16 = 0.5625 = 56.25% */
+  height: 0; /* 重置高度 */
+}
+
+.slide-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.slide-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px 50px; /* 增加左右内边距 */
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)); /* 渐变背景 */
+  backdrop-filter: blur(10px);
+  text-align: left; /* 文字左对齐 */
+}
+
+.emotion-text {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  text-align: left; /* 文字左对齐 */
+  max-width: 600px; /* 限制文字宽度 */
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateX(-20px); /* 改为水平方向的动画 */
+  transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+}
+
+.slider-controls {
+  position: absolute;
+  bottom: 16px; /* 调整底部距离 */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.slider-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* 响应式调整 */
 @media (max-width: 768px) {
-  .comic-slider {
-    margin-top: 0; /* 保持与桌面版一致，无顶部外边距 */
+  .slide-text {
+    padding: 20px 30px; /* 移动端减少内边距 */
+  }
+  
+  .emotion-text {
+    font-size: 24px;
   }
 }
 
@@ -984,6 +1105,12 @@ export default {
   background: radial-gradient(circle at center, rgba(44, 90, 255, 0.08), transparent 70%);
   opacity: 0.8;
   z-index: -1;
+}
+
+.slide-image {
+  width: 100%;
+  height: 400px; /* 设置轮播图高度 */
+  object-fit: cover; /* 确保图片填充整个容器 */
 }
 
 .slide-text {
@@ -2130,6 +2257,29 @@ export default {
   .cta-button {
     padding: 12px 30px;
     font-size: 18px;
+  }
+}
+
+/* 添加悬停效果 */
+.slide-content:hover .slide-image {
+  transform: scale(1.02); /* 轻微放大效果 */
+}
+
+/* 确保容器也有圆角，防止图片溢出 */
+.slide-content {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.slider-container {
+  border-radius: 20px; /* 匹配图片圆角 */
+  overflow: hidden;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .slide-image {
+    border-radius: 16px; /* 移动端稍微减小圆角 */
   }
 }
 </style> 
